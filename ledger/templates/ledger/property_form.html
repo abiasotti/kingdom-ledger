@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Form - Kingdom Ledger</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .nav {
+            margin-top: 15px;
+        }
+        .nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #0056b3;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+            margin-left: 10px;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{% if is_edit %}Edit Property{% else %}Add Property{% endif %}</h1>
+            <div class="nav">
+                <a href="{% url 'ledger:dashboard' %}">Dashboard</a>
+                <a href="{% url 'ledger:property_list' %}">Properties</a>
+                <a href="{% url 'ledger:transaction_list' %}">Transactions</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Property Name</label>
+                    <input type="text" id="name" name="name" value="{% if property %}{{ property.name }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" rows="3" required>{% if property %}{{ property.address }}{% endif %}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="property_type">Property Type</label>
+                    <select id="property_type" name="property_type">
+                        <option value="residential" {% if property and property.property_type == 'residential' %}selected{% endif %}>Residential</option>
+                        <option value="commercial" {% if property and property.property_type == 'commercial' %}selected{% endif %}>Commercial</option>
+                        <option value="mixed" {% if property and property.property_type == 'mixed' %}selected{% endif %}>Mixed Use</option>
+                        <option value="land" {% if property and property.property_type == 'land' %}selected{% endif %}>Land</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="acquisition_date">Acquisition Date</label>
+                    <input type="date" id="acquisition_date" name="acquisition_date" value="{% if property %}{{ property.acquisition_date|date:'Y-m-d' }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="purchase_price">Purchase Price</label>
+                    <input type="number" id="purchase_price" name="purchase_price" step="0.01" min="0.01" value="{% if property %}{{ property.purchase_price }}{% endif %}" required>
+                </div>
+                <div class="form-group">
+                    <label for="current_value">Current Value (optional)</label>
+                    <input type="number" id="current_value" name="current_value" step="0.01" min="0.01" value="{% if property %}{{ property.current_value }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" name="notes" rows="3">{% if property %}{{ property.notes }}{% endif %}</textarea>
+                </div>
+                <button type="submit" class="btn">{% if is_edit %}Update Property{% else %}Save Property{% endif %}</button>
+                {% if is_edit %}
+                <a href="{% url 'ledger:property_delete' property.pk %}" class="btn btn-danger">Delete Property</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

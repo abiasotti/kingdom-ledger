@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Form - Kingdom Ledger</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .nav {
+            margin-top: 15px;
+        }
+        .nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #0056b3;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #218838;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script>
+        function updateCategories() {
+            const transactionType = document.getElementById('transaction_type').value;
+            const categorySelect = document.getElementById('category');
+            const incomeCategories = categorySelect.querySelectorAll('.income-category');
+            const expenseCategories = categorySelect.querySelectorAll('.expense-category');
+            
+            // Reset category selection
+            categorySelect.value = '';
+            
+            if (transactionType === 'income') {
+                // Show income categories, hide expense categories
+                incomeCategories.forEach(option => option.classList.remove('hidden'));
+                expenseCategories.forEach(option => option.classList.add('hidden'));
+            } else if (transactionType === 'expense') {
+                // Show expense categories, hide income categories
+                incomeCategories.forEach(option => option.classList.add('hidden'));
+                expenseCategories.forEach(option => option.classList.remove('hidden'));
+            } else {
+                // Hide all categories if no type selected
+                incomeCategories.forEach(option => option.classList.add('hidden'));
+                expenseCategories.forEach(option => option.classList.add('hidden'));
+            }
+        }
+        
+        // Add event listener when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const transactionTypeSelect = document.getElementById('transaction_type');
+            transactionTypeSelect.addEventListener('change', updateCategories);
+            
+            // Initialize categories
+            updateCategories();
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Add Transaction</h1>
+            <div class="nav">
+                <a href="{% url 'ledger:dashboard' %}">Dashboard</a>
+                <a href="{% url 'ledger:property_list' %}">Properties</a>
+                <a href="{% url 'ledger:transaction_list' %}">Transactions</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="property">Property</label>
+                    <select id="property" name="property" required>
+                        <option value="">Select a property</option>
+                        {% for property in properties %}
+                        <option value="{{ property.id }}">{{ property.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transaction_type">Transaction Type</label>
+                    <select id="transaction_type" name="transaction_type" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="vendor">Vendor (optional)</label>
+                    <input type="text" id="vendor" name="vendor">
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <!-- Income categories -->
+                        <option value="rent" class="income-category">Rent</option>
+                        <option value="late_fees" class="income-category">Late Fees</option>
+                        <option value="pet_fees" class="income-category">Pet Fees</option>
+                        <option value="utilities_reimbursement" class="income-category">Utilities Reimbursement</option>
+                        <option value="other_income" class="income-category">Other Income</option>
+                        <!-- Expense categories -->
+                        <option value="advertising" class="expense-category">Advertising</option>
+                        <option value="auto_travel" class="expense-category">Auto and Travel</option>
+                        <option value="cleaning_maintenance" class="expense-category">Cleaning and Maintenance</option>
+                        <option value="commissions" class="expense-category">Commissions</option>
+                        <option value="insurance" class="expense-category">Insurance</option>
+                        <option value="legal_professional" class="expense-category">Legal and Professional Fees</option>
+                        <option value="management_fees" class="expense-category">Management Fees</option>
+                        <option value="mortgage_interest" class="expense-category">Mortgage Interest</option>
+                        <option value="other_interest" class="expense-category">Other Interest</option>
+                        <option value="repairs" class="expense-category">Repairs</option>
+                        <option value="supplies" class="expense-category">Supplies</option>
+                        <option value="taxes" class="expense-category">Taxes</option>
+                        <option value="utilities" class="expense-category">Utilities</option>
+                        <option value="depreciation" class="expense-category">Depreciation</option>
+                        <option value="other_expenses" class="expense-category">Other Expenses</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn">Save Transaction</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

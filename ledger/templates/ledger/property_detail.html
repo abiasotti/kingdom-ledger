@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Detail - Kingdom Ledger</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .nav {
+            margin-top: 15px;
+        }
+        .nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            margin-right: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .nav a:hover {
+            background: #0056b3;
+        }
+        .content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #218838;
+        }
+        .property-info {
+            margin-bottom: 30px;
+        }
+        .property-info h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .property-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .property-details p {
+            margin: 8px 0;
+            color: #666;
+        }
+        .property-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+        }
+        .stat-label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .stat-value.income {
+            color: #28a745;
+        }
+        .stat-value.expense {
+            color: #dc3545;
+        }
+        .property-actions {
+            margin-bottom: 30px;
+        }
+        .transactions-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+        .transaction-table {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .transaction-type {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .transaction-type.income {
+            background: #d4edda;
+            color: #155724;
+        }
+        .transaction-type.expense {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .amount.income {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .amount.expense {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .btn-small {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 4px;
+            font-size: 12px;
+        }
+        .btn-small:hover {
+            background: #0056b3;
+        }
+        .no-transactions {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .no-transactions a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .no-transactions a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Property Detail</h1>
+            <div class="nav">
+                <a href="{% url 'ledger:dashboard' %}">Dashboard</a>
+                <a href="{% url 'ledger:property_list' %}">Properties</a>
+                <a href="{% url 'ledger:transaction_list' %}">Transactions</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="property-info">
+                <h2>{{ property.name }}</h2>
+                <div class="property-details">
+                    <p><strong>Address:</strong> {{ property.address }}</p>
+                    <p><strong>Type:</strong> {{ property.get_property_type_display }}</p>
+                    <p><strong>Purchase Price:</strong> ${{ property.purchase_price|floatformat:2 }}</p>
+                    <p><strong>Current Value:</strong> {% if property.current_value %}${{ property.current_value|floatformat:2 }}{% else %}Not set{% endif %}</p>
+                    <p><strong>Acquisition Date:</strong> {{ property.acquisition_date }}</p>
+                    {% if property.notes %}
+                    <p><strong>Notes:</strong> {{ property.notes }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="property-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Income:</span>
+                        <span class="stat-value income">${{ property.total_income|floatformat:2 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Expenses:</span>
+                        <span class="stat-value expense">${{ property.total_expenses|floatformat:2 }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Net Income:</span>
+                        <span class="stat-value {% if property.net_income >= 0 %}income{% else %}expense{% endif %}">${{ property.net_income|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="property-actions">
+                <a href="{% url 'ledger:property_edit' property.pk %}" class="btn">Edit Property</a>
+                <a href="{% url 'ledger:transaction_add' %}" class="btn">Add Transaction</a>
+            </div>
+            
+            <div class="transactions-section">
+                <h3>Transactions for {{ property.name }}</h3>
+                
+                {% if transactions %}
+                    <div class="transaction-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Description</th>
+                                    <th>Vendor</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td>{{ transaction.date }}</td>
+                                    <td>
+                                        <span class="transaction-type {{ transaction.transaction_type }}">
+                                            {{ transaction.get_transaction_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ transaction.category|title }}</td>
+                                    <td>{{ transaction.description }}</td>
+                                    <td>{{ transaction.vendor|default:"-" }}</td>
+                                    <td class="amount {{ transaction.transaction_type }}">
+                                        ${{ transaction.amount|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'ledger:transaction_detail' transaction.pk %}" class="btn-small">View</a>
+                                        <a href="{% url 'ledger:transaction_edit' transaction.pk %}" class="btn-small">Edit</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="no-transactions">No transactions found for this property. <a href="{% url 'ledger:transaction_add' %}">Add your first transaction</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
